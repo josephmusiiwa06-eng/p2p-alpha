@@ -1,15 +1,16 @@
 'use client'
 
 import Link from 'next/link'
+import { useState } from 'react'
 
 // Colour palettes for each card variant
 const PALETTE = {
   orange: { bg: '#FFF3E8', border: '#FF6B00', bar: '#FF6B00', shadow: '5px 5px 0 rgba(255,107,0,0.25)', badge: { bg: '#FF6B00', text: '#FFF' } },
-  green:  { bg: '#E8FFF2', border: '#00C853', bar: '#00C853', shadow: '5px 5px 0 rgba(0,200,83,0.25)',  badge: { bg: '#00C853', text: '#FFF' } },
-  blue:   { bg: '#E6F5FF', border: '#00A8E8', bar: '#00A8E8', shadow: '5px 5px 0 rgba(0,168,232,0.25)', badge: { bg: '#00A8E8', text: '#FFF' } },
+  green: { bg: '#E8FFF2', border: '#00C853', bar: '#00C853', shadow: '5px 5px 0 rgba(0,200,83,0.25)', badge: { bg: '#00C853', text: '#FFF' } },
+  blue: { bg: '#E6F5FF', border: '#00A8E8', bar: '#00A8E8', shadow: '5px 5px 0 rgba(0,168,232,0.25)', badge: { bg: '#00A8E8', text: '#FFF' } },
   purple: { bg: '#F3EEFF', border: '#9B59B6', bar: '#9B59B6', shadow: '5px 5px 0 rgba(155,89,182,0.25)', badge: { bg: '#9B59B6', text: '#FFF' } },
   yellow: { bg: '#FFFBE6', border: '#FFD600', bar: '#FFD600', shadow: '5px 5px 0 rgba(255,214,0,0.25)', badge: { bg: '#FFD600', text: '#1A1A2E' } },
-  pink:   { bg: '#FFE8F2', border: '#FF4081', bar: '#FF4081', shadow: '5px 5px 0 rgba(255,64,129,0.25)', badge: { bg: '#FF4081', text: '#FFF' } },
+  pink: { bg: '#FFE8F2', border: '#FF4081', bar: '#FF4081', shadow: '5px 5px 0 rgba(255,64,129,0.25)', badge: { bg: '#FF4081', text: '#FFF' } },
 }
 
 function NickCard({ title, subtitle, emoji, colour = 'orange', value, valueLabel, badgeText, badgeOk, link, children, accent }) {
@@ -26,8 +27,8 @@ function NickCard({ title, subtitle, emoji, colour = 'orange', value, valueLabel
       transition: 'transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s',
       cursor: link ? 'pointer' : 'default',
     }}
-    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-8px)'; e.currentTarget.style.boxShadow = `7px 12px 0 rgba(0,0,0,0.12)` }}
-    onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = p.shadow }}>
+      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-8px)'; e.currentTarget.style.boxShadow = `7px 12px 0 rgba(0,0,0,0.12)` }}
+      onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = p.shadow }}>
       {/* Decorative splat */}
       <div style={{
         position: 'absolute', top: '-20px', right: '-20px',
@@ -108,8 +109,8 @@ export function HeadDashboard({ user }) {
         <div style={{ gridColumn: 'span 2' }}>
           <NickCard emoji="🧠" title="AI Morning Briefing" subtitle="Powered by Gemini ✨" colour="purple" badgeText="Today">
             <p style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 700, fontSize: '1.05rem', color: '#4A4A6A', marginBottom: '12px', lineHeight: 1.6 }}>
-              ✨ <strong>Sparkle Alert!</strong> School energy is at <strong>92%</strong>! 
-              ECD&nbsp;B Blue is <span style={{ color: '#00C853' }}>crushing</span> Jumping milestones. 
+              ✨ <strong>Sparkle Alert!</strong> School energy is at <strong>92%</strong>!
+              ECD&nbsp;B Blue is <span style={{ color: '#00C853' }}>crushing</span> Jumping milestones.
               Mrs. Ndlovu's little explorers are gearing up for the <em>Wild Animals</em> theme. 🦁
               Quick win: approve the improvised rope ladders for the outdoor track! 🤸‍♂️
             </p>
@@ -156,8 +157,8 @@ export function HeadDashboard({ user }) {
                 border: `2.5px solid ${item.severity === 'danger' ? '#FF4081' : item.severity === 'warning' ? '#FFD600' : '#00C853'}`,
                 transition: 'transform 0.2s',
               }}
-              onMouseEnter={e => e.currentTarget.style.transform = 'translateX(6px)'}
-              onMouseLeave={e => e.currentTarget.style.transform = 'translateX(0)'}>
+                onMouseEnter={e => e.currentTarget.style.transform = 'translateX(6px)'}
+                onMouseLeave={e => e.currentTarget.style.transform = 'translateX(0)'}>
                 <span style={{ fontSize: '1.4rem' }}>{item.icon}</span>
                 <div style={{ flex: 1 }}>
                   <p style={{ margin: 0, fontFamily: "'Fredoka One', sans-serif", fontSize: '1rem', color: '#1A1A2E' }}>{item.title}</p>
@@ -181,7 +182,199 @@ export function HeadDashboard({ user }) {
 }
 
 // ─── Teacher Dashboard ───────────────────────────────────────────────────────
+function ModalShell({ title, emoji, onClose, children }) {
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, background: 'rgba(26,26,46,0.55)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      zIndex: 1000, padding: '20px',
+    }} onClick={onClose}>
+      <div style={{
+        background: '#FFF', borderRadius: '1.5rem', padding: '28px',
+        maxWidth: '480px', width: '100%', maxHeight: '85vh', overflowY: 'auto',
+        border: '3px solid #1A1A2E', boxShadow: '6px 6px 0 rgba(0,0,0,0.2)',
+      }} onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <h2 style={{ fontFamily: "'Fredoka One', sans-serif", fontSize: '1.3rem', color: '#1A1A2E', margin: 0 }}>
+            {emoji} {title}
+          </h2>
+          <button onClick={onClose} style={{
+            background: 'transparent', border: 'none', fontSize: '1.4rem', cursor: 'pointer', color: '#9090A8',
+          }}>✕</button>
+        </div>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+function inputStyle() {
+  return {
+    width: '100%', padding: '10px 14px', borderRadius: '0.9rem',
+    border: '2px solid #E0E0E8', fontFamily: "'Nunito', sans-serif",
+    fontSize: '0.95rem', marginBottom: '12px', boxSizing: 'border-box',
+  }
+}
+
+function submitButtonStyle(disabled) {
+  return {
+    padding: '10px 20px', background: disabled ? '#C0C0D0' : '#FF6B00', color: '#FFF',
+    border: `2.5px solid ${disabled ? '#B0B0C0' : '#E55A00'}`, borderRadius: '999px',
+    fontFamily: "'Fredoka One', sans-serif", fontSize: '0.9rem',
+    cursor: disabled ? 'not-allowed' : 'pointer', width: '100%',
+  }
+}
+
+function LessonGeneratorModal({ onClose }) {
+  const [theme, setTheme] = useState('')
+  const [learningArea, setLearningArea] = useState('')
+  const [classLevel, setClassLevel] = useState('')
+  const [duration, setDuration] = useState(30)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [plan, setPlan] = useState(null)
+
+  async function handleGenerate(e) {
+    e.preventDefault()
+    setError('')
+    setPlan(null)
+
+    if (!theme.trim() || !learningArea.trim()) {
+      setError('Please fill in Theme and Learning Area.')
+      return
+    }
+
+    setLoading(true)
+    try {
+      const res = await fetch('/api/ai/lesson', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ theme, learningArea, classLevel, duration: Number(duration) || 30 }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || 'Something went wrong generating the lesson.')
+      } else {
+        setPlan(data)
+      }
+    } catch (err) {
+      setError('Network error — please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <ModalShell title="Plan a Playful Lesson" emoji="📝" onClose={onClose}>
+      {!plan ? (
+        <form onSubmit={handleGenerate}>
+          <label style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 700, fontSize: '0.85rem', color: '#4A4A6A' }}>Theme</label>
+          <input style={inputStyle()} value={theme} onChange={e => setTheme(e.target.value)} placeholder="e.g. Wild Animals" />
+
+          <label style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 700, fontSize: '0.85rem', color: '#4A4A6A' }}>Learning Area</label>
+          <input style={inputStyle()} value={learningArea} onChange={e => setLearningArea(e.target.value)} placeholder="e.g. Physical Development" />
+
+          <label style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 700, fontSize: '0.85rem', color: '#4A4A6A' }}>Class Level (optional)</label>
+          <input style={inputStyle()} value={classLevel} onChange={e => setClassLevel(e.target.value)} placeholder="e.g. ECD B" />
+
+          <label style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 700, fontSize: '0.85rem', color: '#4A4A6A' }}>Duration (minutes)</label>
+          <input style={inputStyle()} type="number" value={duration} onChange={e => setDuration(e.target.value)} />
+
+          {error && <p style={{ color: '#E0306A', fontWeight: 700, fontSize: '0.85rem' }}>{error}</p>}
+
+          <button type="submit" disabled={loading} style={submitButtonStyle(loading)}>
+            {loading ? 'Generating...' : '✨ Generate Lesson'}
+          </button>
+        </form>
+      ) : (
+        <div>
+          <h3 style={{ fontFamily: "'Fredoka One', sans-serif", color: '#1A1A2E' }}>{plan.title}</h3>
+          <p style={{ fontFamily: "'Nunito', sans-serif", color: '#4A4A6A', fontWeight: 700 }}>{plan.objectives}</p>
+
+          <h4 style={{ fontFamily: "'Fredoka One', sans-serif", fontSize: '0.95rem', color: '#1A1A2E', marginTop: '16px' }}>Activities</h4>
+          {(plan.activities || []).map((a, i) => (
+            <div key={i} style={{ marginBottom: '8px', padding: '10px 14px', background: '#FFF3E8', borderRadius: '0.9rem' }}>
+              <strong style={{ fontFamily: "'Nunito', sans-serif" }}>{a.name}</strong> ({a.duration} min)
+              <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#4A4A6A' }}>{a.description}</p>
+            </div>
+          ))}
+
+          <h4 style={{ fontFamily: "'Fredoka One', sans-serif", fontSize: '0.95rem', color: '#1A1A2E', marginTop: '16px' }}>Resources</h4>
+          <ul style={{ fontFamily: "'Nunito', sans-serif", color: '#4A4A6A', fontSize: '0.85rem' }}>
+            {(plan.resources || []).map((r, i) => <li key={i}>{r}</li>)}
+          </ul>
+
+          <h4 style={{ fontFamily: "'Fredoka One', sans-serif", fontSize: '0.95rem', color: '#1A1A2E', marginTop: '16px' }}>Assessment Notes</h4>
+          <p style={{ fontFamily: "'Nunito', sans-serif", color: '#4A4A6A', fontSize: '0.85rem' }}>{plan.assessment_notes}</p>
+
+          <button onClick={() => setPlan(null)} style={{ ...submitButtonStyle(false), marginTop: '12px' }}>
+            ↻ Generate Another
+          </button>
+        </div>
+      )}
+    </ModalShell>
+  )
+}
+
+function CoachModal({ onClose, initialPrompt = '' }) {
+  const [prompt, setPrompt] = useState(initialPrompt)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [response, setResponse] = useState('')
+
+  async function handleAsk(e) {
+    e.preventDefault()
+    setError('')
+    if (!prompt.trim()) {
+      setError('Please type a question first.')
+      return
+    }
+    setLoading(true)
+    try {
+      const res = await fetch('/api/ai/coach', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || 'Something went wrong.')
+      } else {
+        setResponse(data.response)
+      }
+    } catch (err) {
+      setError('Network error — please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <ModalShell title="Pixie-Dust Teaching Coach" emoji="🪄" onClose={onClose}>
+      <form onSubmit={handleAsk}>
+        <textarea
+          style={{ ...inputStyle(), minHeight: '90px', resize: 'vertical' }}
+          value={prompt}
+          onChange={e => setPrompt(e.target.value)}
+          placeholder="Ask about a classroom challenge, activity idea, or lesson tweak..."
+        />
+        {error && <p style={{ color: '#E0306A', fontWeight: 700, fontSize: '0.85rem' }}>{error}</p>}
+        <button type="submit" disabled={loading} style={{ ...submitButtonStyle(loading), background: loading ? '#C0C0D0' : '#FF4081', borderColor: loading ? '#B0B0C0' : '#E0306A' }}>
+          {loading ? 'Thinking...' : '💬 Ask'}
+        </button>
+      </form>
+      {response && (
+        <div style={{ marginTop: '16px', padding: '14px', background: '#FFE8F2', borderRadius: '0.9rem' }}>
+          <p style={{ fontFamily: "'Nunito', sans-serif", color: '#4A4A6A', whiteSpace: 'pre-wrap', margin: 0 }}>{response}</p>
+        </div>
+      )}
+    </ModalShell>
+  )
+}
+
 export function TeacherDashboard({ user }) {
+  const [activeModal, setActiveModal] = useState(null) // null | 'lesson' | 'coach' | 'ideas'
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
@@ -189,18 +382,18 @@ export function TeacherDashboard({ user }) {
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px' }}>
         <NickCard emoji="🪄" title="Pixie-Dust Teaching Coach" subtitle="AI Powered · Gemini ✨" colour="pink" badgeText="Live Advice">
           <p style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 700, fontSize: '1.05rem', color: '#4A4A6A', lineHeight: 1.7, marginBottom: '14px' }}>
-            🎉 <strong>Bibbidi-Bobbidi-Boo!</strong> You've logged <strong>4 of 5</strong> Kinder Kinetics sessions this week — amazing work! 
-            For today's <em>Hop, Skip &amp; Jump Adventure</em>, swap plastic cones for colourful chalk circles on the concrete track. 
+            🎉 <strong>Bibbidi-Bobbidi-Boo!</strong> You've logged <strong>4 of 5</strong> Kinder Kinetics sessions this week — amazing work!
+            For today's <em>Hop, Skip &amp; Jump Adventure</em>, swap plastic cones for colourful chalk circles on the concrete track.
             Low-resource, high-magic! 🤸‍♀️
           </p>
           <div style={{ display: 'flex', gap: '10px' }}>
-            <button style={{
+            <button onClick={() => setActiveModal('coach')} style={{
               padding: '10px 20px', background: '#FF4081', color: '#FFF',
               border: '2.5px solid #E0306A', borderRadius: '999px',
               fontFamily: "'Fredoka One', sans-serif", fontSize: '0.9rem',
               cursor: 'pointer', boxShadow: '3px 3px 0 rgba(0,0,0,0.12)',
             }}>Ask a Question 💬</button>
-            <button style={{
+            <button onClick={() => setActiveModal('ideas')} style={{
               padding: '10px 20px', background: 'transparent', color: '#FF4081',
               border: '2.5px solid #FF4081', borderRadius: '999px',
               fontFamily: "'Fredoka One', sans-serif", fontSize: '0.9rem',
@@ -212,11 +405,11 @@ export function TeacherDashboard({ user }) {
         <NickCard emoji="🎒" title="Magic Chest" subtitle="Quick actions" colour="orange">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px' }}>
             {[
-              { emoji: '📝', label: 'Plan a Playful Lesson', bg: '#FF6B00', border: '#E55A00' },
-              { emoji: '🤸', label: 'Log Kinder Kinetics', bg: '#00C853', border: '#00A843' },
-              { emoji: '📒', label: 'Open Logbook', bg: '#00A8E8', border: '#0090CC' },
-            ].map(btn => (
-              <button key={btn.label} style={{
+              { emoji: '📝', label: 'Plan a Playful Lesson', bg: '#FF6B00', border: '#E55A00', action: () => setActiveModal('lesson') },
+              { emoji: '🤸', label: 'Log Kinder Kinetics', bg: '#00C853', border: '#00A843', href: '/dashboard/movement' },
+              { emoji: '📒', label: 'Open Logbook', bg: '#00A8E8', border: '#0090CC', href: '/dashboard/logbook' },
+            ].map(btn => {
+              const commonStyle = {
                 display: 'flex', alignItems: 'center', gap: '10px',
                 padding: '12px 16px', background: btn.bg, color: '#FFF',
                 border: `2.5px solid ${btn.border}`, borderRadius: '999px',
@@ -224,12 +417,22 @@ export function TeacherDashboard({ user }) {
                 width: '100%', cursor: 'pointer',
                 boxShadow: '3px 3px 0 rgba(0,0,0,0.12)',
                 transition: 'transform 0.2s',
-              }}
-              onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-3px)'}
-              onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
-                {btn.emoji} {btn.label}
-              </button>
-            ))}
+                textDecoration: 'none', boxSizing: 'border-box',
+              }
+              const hoverProps = {
+                onMouseEnter: e => e.currentTarget.style.transform = 'translateY(-3px)',
+                onMouseLeave: e => e.currentTarget.style.transform = 'translateY(0)',
+              }
+              return btn.href ? (
+                <Link key={btn.label} href={btn.href} style={commonStyle} {...hoverProps}>
+                  {btn.emoji} {btn.label}
+                </Link>
+              ) : (
+                <button key={btn.label} onClick={btn.action} style={commonStyle} {...hoverProps}>
+                  {btn.emoji} {btn.label}
+                </button>
+              )
+            })}
           </div>
         </NickCard>
       </div>
@@ -256,8 +459,8 @@ export function TeacherDashboard({ user }) {
                 boxShadow: p.shadow,
                 transition: 'transform 0.25s',
               }}
-              onMouseEnter={e => e.currentTarget.style.transform = 'translateX(6px)'}
-              onMouseLeave={e => e.currentTarget.style.transform = 'translateX(0)'}>
+                onMouseEnter={e => e.currentTarget.style.transform = 'translateX(6px)'}
+                onMouseLeave={e => e.currentTarget.style.transform = 'translateX(0)'}>
                 <span style={{ fontSize: '2rem', flexShrink: 0 }}>{lesson.emoji}</span>
                 <div style={{ flex: 1 }}>
                   <p style={{ margin: 0, fontFamily: "'Fredoka One', sans-serif", fontSize: '1.1rem', color: '#1A1A2E' }}>{lesson.title}</p>
@@ -269,13 +472,13 @@ export function TeacherDashboard({ user }) {
                   fontFamily: "'Fredoka One', sans-serif", fontSize: '0.82rem',
                   flexShrink: 0,
                 }}>{lesson.status === 'ready' ? '✅ Ready' : '✏️ Draft'}</span>
-                <button style={{
+                <Link href="/dashboard/lessons" style={{
                   padding: '8px 18px', background: p.border, color: '#FFF',
                   border: 'none', borderRadius: '999px',
                   fontFamily: "'Fredoka One', sans-serif", fontSize: '0.88rem',
-                  cursor: 'pointer', flexShrink: 0,
+                  cursor: 'pointer', flexShrink: 0, textDecoration: 'none',
                   boxShadow: '2px 2px 0 rgba(0,0,0,0.1)',
-                }}>Start ▶</button>
+                }}>Start ▶</Link>
               </div>
             )
           })}
@@ -294,6 +497,15 @@ export function TeacherDashboard({ user }) {
           </NickCard>
         ))}
       </div>
+
+      {activeModal === 'lesson' && <LessonGeneratorModal onClose={() => setActiveModal(null)} />}
+      {activeModal === 'coach' && <CoachModal onClose={() => setActiveModal(null)} />}
+      {activeModal === 'ideas' && (
+        <CoachModal
+          onClose={() => setActiveModal(null)}
+          initialPrompt="Give me 3 creative, low-resource activity ideas for today's lesson."
+        />
+      )}
 
     </div>
   )
