@@ -1,5 +1,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+// Environment validation – fails fast if any required env var is missing
+import { validateEnv } from '@/utils/env/check';
+
+validateEnv();
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

@@ -1,7 +1,8 @@
 'use client'
 
 import { PreviewSwitcher } from './PreviewSwitcher'
-import { Bell, Search, User } from 'lucide-react'
+import { Bell, Search, User } from 'lucide-react';
+import { useState } from 'react';
 
 export function Topbar({ user }) {
   const role = user?.user_metadata?.role || 'school_head'
@@ -44,19 +45,8 @@ export function Topbar({ user }) {
         <PreviewSwitcher />
 
         {/* Bell */}
-        <button style={{
-          position: 'relative', padding: '8px', background: '#FFF3E8',
-          border: '2.5px solid rgba(255,107,0,0.2)', borderRadius: '999px',
-          cursor: 'pointer', transition: 'all 0.2s',
-        }}>
-          <Bell size={20} color="#FF6B00" />
-          <span style={{
-            position: 'absolute', top: '4px', right: '4px',
-            width: '10px', height: '10px',
-            background: '#FF4081', borderRadius: '50%',
-            border: '2px solid #FFFFFF',
-          }} />
-        </button>
+                {/* Notification Bell */}
+        <NotificationBell />
 
         {/* Avatar + name */}
         <div style={{

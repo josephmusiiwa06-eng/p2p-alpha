@@ -5,11 +5,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 
 export async function login(formData) {
-  const isPlaceholder = process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder')
-  
-  if (isPlaceholder) {
-    redirect('/dashboard')
-  }
+  // Removed placeholder bypass; real authentication will be performed against Supabase.
 
   const supabase = await createClient()
 

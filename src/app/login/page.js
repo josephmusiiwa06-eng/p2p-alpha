@@ -1,4 +1,6 @@
-import { login, signup } from './actions'
+'use client'
+
+import { login } from './actions'
 
 export default function LoginPage({ searchParams }) {
   const message = searchParams?.message
@@ -13,11 +15,11 @@ export default function LoginPage({ searchParams }) {
 
         {message && (
           <div className="badge badge-danger mb-4 w-full justify-center p-2">
-            {message}
+            {decodeURIComponent(message)}
           </div>
         )}
 
-        <form className="flex-col gap-4">
+        <form method="post" className="flex-col gap-4">
           <div className="form-group">
             <label className="form-label" htmlFor="email">Email</label>
             <input
@@ -48,12 +50,6 @@ export default function LoginPage({ searchParams }) {
               className="btn btn-primary w-full"
             >
               Log In
-            </button>
-            <button
-              formAction={signup}
-              className="btn btn-outline w-full"
-            >
-              Sign Up
             </button>
           </div>
         </form>
